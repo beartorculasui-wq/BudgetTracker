@@ -49,8 +49,8 @@ background:#388e3c;
 display:flex;
 justify-content:space-between;
 background:#ffe6ef; /* 
-padding:8px;
-margin-top:6px;
+padding:5px;
+margin-top:5px;
 border-radius:5px;
 align-items:center;
 }
@@ -80,8 +80,8 @@ background:#e84393;
 
 h3{
 background:#e8fff1;
-padding:10px;
-border-radius:6px;
+padding:5px;
+border-radius:5px;
 text-align:center;
 }
 
@@ -100,7 +100,7 @@ text-align:center;
 
 <select id="type">
 <option value="income">Income</option>
-<option value="expense">Expense</option>
+<option value="expenses">Expense</option>
 </select>
 
 <button onclick="addTransaction()">Add</button>
@@ -180,7 +180,7 @@ div.className="item";
 div.innerHTML = `
 <span>${t.desc}</span>
 <span class="${color}">${sign}${t.amount}</span>
-<button onclick="deleteTransaction(${t.id})">X</button>
+<button onclick="deleteTransaction(${t.id})">delete</button>
 `;
 
 history.appendChild(div);
