@@ -11,215 +11,200 @@
 <div class="card-body text-center">
 <img src="icon-512.png" class="img-fluid rounded-circle w-25 h-25 " alt="Responsive image">
 
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #d8d8d8; /* Light grey background */
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
 
- <style>
+    .outer-container {
+      background: #fcb7ca; /* Pink outer container */
+      padding: 30px 20px;
+      border-radius: 15px;
+      box-sizing: border-box;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
 
-body{
-font-family: Arial;
-background:#ffd6e7; 
-padding:20px;
-}
+    .container {
+      background: white;
+      max-width: 320px;
+      padding: 25px 20px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
 
-.container{
-max-width:400px;
-margin:auto;
-background:#ffc0cb; 
-padding:20px;
-border-radius:10px;
-}
+    .container img {
+      width: 48px;
+      margin-bottom: 15px;
+    }
 
-h2{
-text-align:center;
-}
+    h2 {
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: black;
+    }
 
-input,select,button{
-width:100%;
-padding:10px;
-margin-top:8px;
-border:1px solid #66bb6a; 
-border-radius:5px;
-}
+    input,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 8px 0;
+      border: 2px solid #4caf50;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+      color: #333;
+    }
 
-button{
-background:#4CAF50; 
-color:white;
-font-weight:bold;
-border:none;
-}
+    select {
+      appearance: none;
+      background-color: #ededed;
+      border: 2px solid black;
+      font-weight: 600;
+    }
 
-button:hover{
-background:#388e3c;
-}
+    button {
+      background-color: #4caf50; /* Green button */
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 0;
+      cursor: pointer;
+      margin-top: 12px;
+      width: 100%;
+    }
 
-.item{
-display:flex;
-justify-content:space-between;
-background:#ffe6ef; /* 
-padding:5px;
-margin-top:5px;
-border-radius:5px;
-align-items:center;
-}
+    button:hover {
+      background-color: #388e3c;
+    }
 
-.income{
-color:#2ecc71; 
-font-weight:bold;
-}
-
-.expense{
-color:#ff5c8a; 
-font-weight:bold;
-}
-
-.item button{
-background:#ff4d88; 
-color:white;
-border:none;
-padding:4px 8px;
-border-radius:4px;
-cursor:pointer;
-}
-
-.item button:hover{
-background:#e84393;
-}
-
-h3{
-background:#e8fff1;
-padding:5px;
-border-radius:5px;
-text-align:center;
-}
-
-</style>
+    h3 {
+      margin-top: 15px;
+      font-weight: 600;
+      font-size: 18px;
+      color: black;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="outer-container">
+    <div class="container">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="budget icon" />
+      <h2>Budget Tracker</h2>
 
-<div class="container">
+      <input id="desc" placeholder="Description" />
+      <input id="amount" type="number" placeholder="Amount" />
+      <select id="type">
+        <option value="expense" selected>Expense</option>
+        <option value="income">Income</option>
+      </select>
 
-<h2>Budget Tracker</h2>
+      <button onclick="addTransaction()">Add</button>
 
-<input id="desc" placeholder="Description">
+      <h3>Balance: ₱<span id="balance">0</span></h3>
 
-<input id="amount" type="number" placeholder="Amount">
+      <div id="history"></div>
+    </div>
+  </div>
 
-<select id="type">
-<option value="income">Income</option>
-<option value="expenses">Expense</option>
-</select>
+  <script>
+    let transactions = JSON.parse(localStorage.getItem("data")) || [];
 
-<button onclick="addTransaction()">Add</button>
+    function save() {
+      localStorage.setItem("data", JSON.stringify(transactions));
+    }
 
-<h3>Balance: ₱<span id="balance">0</span></h3>
+    function addTransaction() {
+      let desc = document.getElementById("desc").value;
+      let amount = document.getElementById("amount").value;
+      let type = document.getElementById("type").value;
 
-<div id="history"></div>
+      if (desc == "" || amount == "") {
+        alert("Fill all fields");
+        return;
+      }
 
-</div>
+      let transaction = {
+        id: Date.now(),
+        desc: desc,
+        amount: Number(amount),
+        type: type,
+      };
 
-<script>
+      transactions.push(transaction);
 
-let transactions = JSON.parse(localStorage.getItem("data")) || [];
+      save();
+      showData();
 
-function save(){
-localStorage.setItem("data",JSON.stringify(transactions));
-}
+      document.getElementById("desc").value = "";
+      document.getElementById("amount").value = "";
+    }
 
-function addTransaction(){
+    function deleteTransaction(id) {
+      transactions = transactions.filter((t) => t.id != id);
 
-let desc = document.getElementById("desc").value;
-let amount = document.getElementById("amount").value;
-let type = document.getElementById("type").value;
+      save();
+      showData();
+    }
 
-if(desc=="" || amount==""){
-alert("Fill all fields");
-return;
-}
+    function showData() {
+      let history = document.getElementById("history");
+      let balance = 0;
 
-let transaction={
-id:Date.now(),
-desc:desc,
-amount:Number(amount),
-type:type
-};
+      history.innerHTML = "";
 
-transactions.push(transaction);
+      transactions.forEach((t) => {
+        if (t.type == "income") {
+          balance += t.amount;
+        } else {
+          balance -= t.amount;
+        }
 
-save();
-showData();
+        let sign = t.type == "income" ? "+" : "-";
+        let color = t.type == "income" ? "income" : "expense";
 
-document.getElementById("desc").value="";
-document.getElementById("amount").value="";
+        let div = document.createElement("div");
+        div.className = "item";
 
-}
+        div.innerHTML = `
+        <span>${t.desc}</span>
+        <span class="${color}">${sign}${t.amount}</span>
+        <button onclick="deleteTransaction(${t.id})">X</button>
+        `;
 
-function deleteTransaction(id){
+        history.appendChild(div);
+      });
 
-transactions = transactions.filter(t => t.id != id);
+      document.getElementById("balance").innerText = balance;
+    }
 
-save();
-showData();
+    showData();
 
-}
-
-function showData(){
-
-let history = document.getElementById("history");
-let balance = 0;
-
-history.innerHTML="";
-
-transactions.forEach(t=>{
-
-if(t.type=="income"){
-balance += t.amount;
-}else{
-balance -= t.amount;
-}
-
-let sign = t.type=="income" ? "+" : "-";
-let color = t.type=="income" ? "income" : "expense";
-
-let div = document.createElement("div");
-div.className="item";
-
-div.innerHTML = `
-<span>${t.desc}</span>
-<span class="${color}">${sign}${t.amount}</span>
-<button onclick="deleteTransaction(${t.id})">delete</button>
-`;
-
-history.appendChild(div);
-
-});
-
-document.getElementById("balance").innerText = balance;
-
-}
-
-showData();
-
-
-
-if ("serviceWorker" in navigator) {
-navigator.serviceWorker
-.register("/service-worker.js")
-.then(() => {
-console.log("ok gd");
-})
-.catch((error) => {
-console.log("Registration failed: ", error);
-});
-}
-
- 
-
-</script>
-
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then(() => {
+          console.log("ayos! rehistro as service worker");
+        })
+        .catch((error) => {
+          console.log("Registration failed: ", error);
+        });
+    }
+  </script>
 </body>
+
 </html>
 
-
-
-
-
+ 
