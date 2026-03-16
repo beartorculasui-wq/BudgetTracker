@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>💸 Budget Tracker</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icons/icon-192x192.png" type="image/png">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="icon" href="icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="theme-color" content="#2196F3">
     <meta name="apple-mobile-web-app-status-bar-style" content="#2196F3">
     <style>
@@ -37,20 +37,12 @@
         }
 
         .app-logo {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             margin-bottom: 0.8rem;
             display: block;
             margin-left: auto;
             margin-right: auto;
-            /* Fallback if icon fails */
-            background: #2196F3;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #FFFFFF;
-            font-size: 1.2rem;
         }
 
         h1 {
@@ -87,19 +79,16 @@
             border-radius: 8px;
             font-size: 1rem;
             cursor: pointer;
-            text-align: center;
         }
 
         .type-btn.active {
             background: #2196F3;
             color: #FFFFFF;
-            border-color: #2196F3;
         }
 
         .type-btn:not(.active) {
             background: #FFFFFF;
             color: #1a1a1a;
-            border-color: #2196F3;
         }
 
         .add-btn {
@@ -115,10 +104,6 @@
             margin-bottom: 1.2rem;
         }
 
-        .add-btn:active {
-            background: #1976D2;
-        }
-
         .balance {
             font-size: 1.2rem;
             font-weight: 700;
@@ -129,18 +114,15 @@
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- Custom icon with fallback -->
-        <img src="icons/icon-512x512.png" alt="Budget Tracker Icon" class="app-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="app-logo" style="display:none;">💸</div>
-
+        <img src="icon-192.png" alt="Budget Tracker Icon" class="app-logo">
         <h1>Budget Tracker</h1>
         
         <input type="text" placeholder="Description" id="desc">
         <input type="number" placeholder="Amount" id="amount" min="0">
         
         <div class="type-toggle">
-            <button class="type-btn" data-type="expense">Expenses</button>
-            <button class="type-btn active" data-type="income">Income</button>
+            <button class="type-btn active" data-type="expense">Expense</button>
+            <button class="type-btn" data-type="income">Income</button>
         </div>
         
         <button class="add-btn" onclick="addTransaction()">Add</button>
@@ -153,7 +135,6 @@
         const typeBtns = document.querySelectorAll('.type-btn');
         const balanceEl = document.getElementById('balance');
 
-        // Toggle type buttons
         typeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 typeBtns.forEach(b => b.classList.remove('active'));
@@ -161,7 +142,6 @@
             });
         });
 
-        // Add transaction
         function addTransaction() {
             const desc = document.getElementById('desc').value.trim();
             const amount = parseFloat(document.getElementById('amount').value);
@@ -177,7 +157,6 @@
             localStorage.setItem('budgetBalance', balance);
         }
 
-        // Load saved data
         window.onload = () => {
             const saved = localStorage.getItem('budgetBalance');
             if (saved) balance = parseFloat(saved);
