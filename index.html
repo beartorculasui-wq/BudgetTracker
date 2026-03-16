@@ -7,8 +7,10 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon-192.png" type="image/png">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="theme-color" content="#2196F3">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#2196F3">
+    <meta name="theme-color" content="#FFC0CB">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#FFC0CB">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
         * {
             margin: 0;
@@ -18,7 +20,7 @@
         }
 
         body {
-            background-color: #81D4FA;
+            background-color: #C8E6C9;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -33,7 +35,7 @@
             border-radius: 20px;
             padding: 1.5rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 4px solid #2196F3;
+            border: 4px solid #FFC0CB;
         }
 
         .app-logo {
@@ -56,7 +58,7 @@
             width: 100%;
             padding: 1rem;
             margin-bottom: 1rem;
-            border: 2px solid #2196F3;
+            border: 2px solid #FFC0CB;
             border-radius: 8px;
             font-size: 1rem;
             outline: none;
@@ -75,14 +77,14 @@
         .type-btn {
             flex: 1;
             padding: 1rem;
-            border: 2px solid #2196F3;
             border-radius: 8px;
             font-size: 1rem;
             cursor: pointer;
+            border: 2px solid #FFC0CB;
         }
 
         .type-btn.active {
-            background: #2196F3;
+            background: #FFC0CB;
             color: #FFFFFF;
         }
 
@@ -96,7 +98,7 @@
             padding: 1.1rem;
             border: none;
             border-radius: 8px;
-            background: #2196F3;
+            background: #FFC0CB;
             color: #FFFFFF;
             font-size: 1.1rem;
             font-weight: 600;
@@ -121,7 +123,7 @@
         <input type="number" placeholder="Amount" id="amount" min="0">
         
         <div class="type-toggle">
-            <button class="type-btn active" data-type="expense">Expense</button>
+            <button class="type-btn active" data-type="expense">Expenses</button>
             <button class="type-btn" data-type="income">Income</button>
         </div>
         
@@ -163,7 +165,6 @@
             balanceEl.textContent = balance.toFixed(2);
         };
 
-        // Service Worker Registration
         if('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
