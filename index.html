@@ -1,210 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Budget Tracker </title></title>
-<link rel="manifest" href="manifest.json">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"><body class="bg-secondary-subtle">
-<div class="container py-5">
-<div class="card shadow-sm mx-auto" style="max-width: 400px;">
-<div class="card-body text-center">
-<img src="icon-512.png" class="img-fluid rounded-circle w-25 h-25 " alt="Responsive image">
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #d8d8d8; /* Light grey background */
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .outer-container {
-      background: #fcb7ca; /* Pink outer container */
-      padding: 30px 20px;
-      border-radius: 15px;
-      box-sizing: border-box;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .container {
-      background: white;
-      max-width: 320px;
-      padding: 25px 20px;
-      border-radius: 15px;
-      text-align: center;
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .container img {
-      width: 48px;
-      margin-bottom: 15px;
-    }
-
-    h2 {
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: black;
-    }
-
-    input,
-    select {
-      width: 100%;
-      padding: 10px 12px;
-      margin: 8px 0;
-      border: 2px solid #4caf50;
-      border-radius: 6px;
-      box-sizing: border-box;
-      font-size: 14px;
-      outline: none;
-      background: #fff;
-      color: #333;
-    }
-
-    select {
-      appearance: none;
-      background-color: #ededed;
-      border: 2px solid black;
-      font-weight: 600;
-    }
-
-    button {
-      background-color: #4caf50; /* Green button */
-      color: white;
-      font-weight: 600;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 0;
-      cursor: pointer;
-      margin-top: 12px;
-      width: 100%;
-    }
-
-    button:hover {
-      background-color: #388e3c;
-    }
-
-    h3 {
-      margin-top: 15px;
-      font-weight: 600;
-      font-size: 18px;
-      color: black;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="outer-container">
-    <div class="container">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="budget icon" />
-      <h2>Budget Tracker</h2>
-
-      <input id="desc" placeholder="Description" />
-      <input id="amount" type="number" placeholder="Amount" />
-      <select id="type">
-        <option value="expense" selected>Expense</option>
-        <option value="income">Income</option>
-      </select>
-
-      <button onclick="addTransaction()">Add</button>
-
-      <h3>Balance: ₱<span id="balance">0</span></h3>
-
-      <div id="history"></div>
-    </div>
-  </div>
-
-  <script>
-    let transactions = JSON.parse(localStorage.getItem("data")) || [];
-
-    function save() {
-      localStorage.setItem("data", JSON.stringify(transactions));
-    }
-
-    function addTransaction() {
-      let desc = document.getElementById("desc").value;
-      let amount = document.getElementById("amount").value;
-      let type = document.getElementById("type").value;
-
-      if (desc == "" || amount == "") {
-        alert("Fill all fields");
-        return;
-      }
-
-      let transaction = {
-        id: Date.now(),
-        desc: desc,
-        amount: Number(amount),
-        type: type,
-      };
-
-      transactions.push(transaction);
-
-      save();
-      showData();
-
-      document.getElementById("desc").value = "";
-      document.getElementById("amount").value = "";
-    }
-
-    function deleteTransaction(id) {
-      transactions = transactions.filter((t) => t.id != id);
-
-      save();
-      showData();
-    }
-
-    function showData() {
-      let history = document.getElementById("history");
-      let balance = 0;
-
-      history.innerHTML = "";
-
-      transactions.forEach((t) => {
-        if (t.type == "income") {
-          balance += t.amount;
-        } else {
-          balance -= t.amount;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>💸 Budget Tracker</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192x192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <meta name="theme-color" content="#FFC0CB">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#FFC0CB">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
-        let sign = t.type == "income" ? "+" : "-";
-        let color = t.type == "income" ? "income" : "expense";
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 1rem 0;
+        }
 
-        let div = document.createElement("div");
-        div.className = "item";
+        .app-wrapper {
+            width: 92%;
+            max-width: 420px;
+            background: #fff;
+            border-radius: 20px;
+            padding: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
 
-        div.innerHTML = `
-        <span>${t.desc}</span>
-        <span class="${color}">${sign}${t.amount}</span>
-        <button onclick="deleteTransaction(${t.id})">X</button>
-        `;
+        .budget-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 4px solid #ffc0cb;
+        }
 
-        history.appendChild(div);
-      });
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 0.8rem;
+            border-radius: 50%;
+        }
 
-      document.getElementById("balance").innerText = balance;
-    }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: #1a1a1a;
+        }
 
-    showData();
+        input {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
 
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/service-worker.js")
-        .then(() => {
-          console.log("ayos! rehistro as service worker");
-        })
-        .catch((error) => {
-          console.log("Registration failed: ", error);
+        input::placeholder {
+            color: #888;
+        }
+
+        .type-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #eee;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .type-btn.active {
+            background: #4caf50;
+            color: #fff;
+            border-color: #2e7d32;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            background: #4caf50;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1.2rem;
+        }
+
+        .add-btn:active {
+            background: #2e7d32;
+        }
+
+        .balance {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <div class="budget-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" class="profile-icon">
+            <h1>Budget Tracker</h1>
+            
+            <input type="text" placeholder="Description" id="desc">
+            <input type="number" placeholder="Amount" id="amount" min="0">
+            
+            <div class="type-toggle">
+                <button class="type-btn active" data-type="expense">Expense</button>
+                <button class="type-btn" data-type="income">Income</button>
+            </div>
+            
+            <button class="add-btn" onclick="addTransaction()">Add</button>
+            
+            <div class="balance">Balance: ₱<span id="balance">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        let balance = 0;
+        const typeBtns = document.querySelectorAll('.type-btn');
+        const balanceEl = document.getElementById('balance');
+
+        typeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                typeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
         });
-    }
-  </script>
+
+        function addTransaction() {
+            const desc = document.getElementById('desc').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            
+            if (!desc || isNaN(amount) || amount <= 0) return;
+            
+            const type = document.querySelector('.type-btn.active').dataset.type;
+            type === 'expense' ? balance -= amount : balance += amount;
+            
+            balanceEl.textContent = balance.toFixed(2);
+            document.getElementById('desc').value = '';
+            document.getElementById('amount').value = '';
+        }
+
+        function saveData() {
+            localStorage.setItem('budgetBalance', balance);
+        }
+
+        window.onload = () => {
+            const saved = localStorage.getItem('budgetBalance');
+            if (saved) balance = parseFloat(saved);
+            balanceEl.textContent = balance.toFixed(2);
+        };
+    </script>
 </body>
-
 </html>
-
- 
