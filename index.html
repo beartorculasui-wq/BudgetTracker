@@ -182,32 +182,17 @@
             balanceEl.textContent = balance.toFixed(2);
         };
 
-        if('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('Service Worker registered:', reg))
-                    .catch(err => console.error('Service Worker error:', err));
-            });
+
+        if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/service-worker.js")
+          .then(() => {
+            console.log("Service Worker Registered");
+          })
+          .catch((error) => {
+            console.log("Registration failed: ", error);
+          });
         }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'block';
-
-            installBtn.addEventListener('click', () => {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
-                    deferredPrompt = null;
-                    installBtn.style.display = 'none';
-                });
-            }, { once: true });
-        });
-
-        window.addEventListener('appinstalled', () => {
-            deferredPrompt = null;
-            installBtn.style.display = 'none';
-        });
     </script>
 </body>
 </html>
