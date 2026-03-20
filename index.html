@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BudgetTracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="icon" href="icon-512.png" />
-    <meta name="theme-color" content="#00FF00" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="BudgetTracker">
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" href="./icon-512.png" type="image/png" />
+    <link rel="apple-touch-icon" href="./icon-192.png" type="image/png" />
+    <meta name="theme-color" content="#FFC0CB" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="BudgetTracker" />
     <style>
         * {
             margin: 0;
@@ -36,6 +37,7 @@
             padding: 1.5rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border: 4px solid #FFC0CB;
+            margin-top: 1rem;
         }
 
         .app-logo {
@@ -81,6 +83,7 @@
             font-size: 1rem;
             cursor: pointer;
             border: 2px solid #FFC0CB;
+            transition: all 0.2s ease;
         }
 
         .type-btn.active {
@@ -104,6 +107,11 @@
             font-weight: 600;
             cursor: pointer;
             margin-bottom: 1.2rem;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: #f8a8b8;
         }
 
         .balance {
@@ -112,6 +120,47 @@
             color: #1a1a1a;
             text-align: center;
             margin-bottom: 1.2rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .transaction-history {
+            margin-top: 1.5rem;
+        }
+
+        .transaction-history h3 {
+            font-size: 1.3rem;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-desc {
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .transaction-amount.income {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .transaction-amount.expense {
+            color: #e74c3c;
+            font-weight: 600;
         }
 
         #installBtn {
@@ -124,6 +173,16 @@
             color: #1a1a1a;
             font-weight: 600;
             cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s ease;
+        }
+
+        #installBtn:hover {
+            background: #b2d8b4;
+        }
+
+        .btn:focus, .form-control:focus {
+            box-shadow: none !important;
         }
     </style>
 </head>
@@ -132,27 +191,46 @@
         <img src="./icon-192.png" alt="Budget Tracker Icon" class="app-logo">
         <h1>BudgetTracker</h1>
         
-        <input type="text" placeholder="Description" id="desc">
-        <input type="number" placeholder="Amount" id="amount" min="0">
+        <input type="text" placeholder="Description" id="desc" required>
+        <input type="number" placeholder="Amount (₱)" id="amount" min="0.01" step="0.01" required>
         
         <div class="type-toggle">
             <button class="type-btn active" data-type="expense">Expenses</button>
             <button class="type-btn" data-type="income">Income</button>
         </div>
         
-        <button class="add-btn" onclick="addTransaction()">Add</button>
+        <button class="add-btn" onclick="addTransaction()">Add Transaction</button>
         
         <div class="balance">Balance: ₱<span id="balance">0.00</span></div>
+        
+        <div class="transaction-history">
+            <h3>Transaction History</h3>
+            <div id="transactionList"></div>
+        </div>
         
         <button id="installBtn">Install Budget Tracker</button>
     </div>
 
     <script>
         let balance = 0;
+        let transactions = [];
         const typeBtns = document.querySelectorAll('.type-btn');
         const balanceEl = document.getElementById('balance');
+        const transactionListEl = document.getElementById('transactionList');
         const installBtn = document.getElementById('installBtn');
         let deferredPrompt;
+
+        window.onload = () => {
+            const savedBalance = localStorage.getItem('budgetBalance');
+            const savedTransactions = localStorage.getItem('budgetTransactions');
+            
+            if (savedBalance) balance = parseFloat(savedBalance);
+            if (savedTransactions) transactions = JSON.parse(savedTransactions);
+            
+            updateBalanceDisplay();
+            renderTransactions();
+            registerServiceWorker();
+        };
 
         typeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -164,35 +242,67 @@
         function addTransaction() {
             const desc = document.getElementById('desc').value.trim();
             const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.querySelector('.type-btn.active').dataset.type;
             
             if (!desc || isNaN(amount) || amount <= 0) {
                 alert('Please enter a valid description and positive amount!');
                 return;
             }
-            
-            const type = document.querySelector('.type-btn.active').dataset.type;
+
+            const transaction = {
+                id: Date.now(),
+                desc: desc,
+                amount: amount,
+                type: type
+            };
+
+            transactions.push(transaction);
             balance = type === 'expense' ? balance - amount : balance + amount;
             
-            balanceEl.textContent = balance.toFixed(2);
-            document.getElementById('desc').value = '';
-            document.getElementById('amount').value = '';
             localStorage.setItem('budgetBalance', balance);
+            localStorage.setItem('budgetTransactions', JSON.stringify(transactions));
+            
+            updateBalanceDisplay();
+            renderTransactions();
+            clearInputs();
         }
 
-        window.onload = () => {
-            const saved = localStorage.getItem('budgetBalance');
-            if (saved) balance = parseFloat(saved);
+        function updateBalanceDisplay() {
             balanceEl.textContent = balance.toFixed(2);
-        };
+        }
 
-        // Add install prompt handling
+        function renderTransactions() {
+            if (transactions.length === 0) {
+                transactionListEl.innerHTML = '<p style="text-align:center; color:#888;">No transactions yet.</p>';
+                return;
+            }
+
+            transactionListEl.innerHTML = transactions.map(txn => `
+                <div class="transaction-item">
+                    <span class="transaction-desc">${txn.desc}</span>
+                    <span class="transaction-amount ${txn.type}">
+                        ${txn.type === 'income' ? '+' : '-'}₱${txn.amount.toFixed(2)}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function clearInputs() {
+            document.getElementById('desc').value = '';
+            document.getElementById('amount').value = '';
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             installBtn.style.display = 'block';
+            
             installBtn.addEventListener('click', () => {
                 deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => {
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
                     deferredPrompt = null;
                     installBtn.style.display = 'none';
                 });
@@ -202,17 +312,21 @@
         window.addEventListener('appinstalled', () => {
             deferredPrompt = null;
             installBtn.style.display = 'none';
+            console.log('App installed successfully');
         });
 
-        if ("serviceWorker" in navigator) {
-        navigator.serviceWorker
-          .register("./service-worker.js") // Fixed path from / to ./
-          .then(() => {
-            console.log("Service Worker Registered");
-          })
-          .catch((error) => {
-            console.log("Registration failed: ", error);
-          });
+        function registerServiceWorker() {
+            if ("serviceWorker" in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./service-worker.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registered:', registration.scope);
+                        })
+                        .catch(err => {
+                            console.log('ServiceWorker registration failed:', err);
+                        });
+                });
+            }
         }
     </script>
 </body>
