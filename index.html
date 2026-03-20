@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>💸 Budget Tracker</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <meta name="theme-color" content="#FFC0CB">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#FFC0CB">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Budget Tracker">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
@@ -111,12 +112,25 @@
             font-weight: 700;
             color: #1a1a1a;
             text-align: center;
+            margin-bottom: 1.2rem;
+        }
+
+        #installBtn {
+            display: none;
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: #C8E6C9;
+            color: #1a1a1a;
+            font-weight: 600;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="app-wrapper">
-        <img src="icon-192.png" alt="Budget Tracker Icon" class="app-logo">
+        <img src="./icon-192.png" alt="Budget Tracker Icon" class="app-logo">
         <h1>Budget Tracker</h1>
         
         <input type="text" placeholder="Description" id="desc">
@@ -130,12 +144,16 @@
         <button class="add-btn" onclick="addTransaction()">Add</button>
         
         <div class="balance">Balance: ₱<span id="balance">0.00</span></div>
+        
+        <button id="installBtn">Install Budget Tracker</button>
     </div>
 
     <script>
         let balance = 0;
         const typeBtns = document.querySelectorAll('.type-btn');
         const balanceEl = document.getElementById('balance');
+        const installBtn = document.getElementById('installBtn');
+        let deferredPrompt;
 
         typeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -148,7 +166,10 @@
             const desc = document.getElementById('desc').value.trim();
             const amount = parseFloat(document.getElementById('amount').value);
             
-            if (!desc || isNaN(amount) || amount <= 0) return;
+            if (!desc || isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid description and positive amount!');
+                return;
+            }
             
             const type = document.querySelector('.type-btn.active').dataset.type;
             balance = type === 'expense' ? balance - amount : balance + amount;
@@ -167,11 +188,30 @@
 
         if('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
+                navigator.serviceWorker.register('./service-worker.js')
                     .then(reg => console.log('Service Worker registered:', reg))
                     .catch(err => console.error('Service Worker error:', err));
             });
         }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+
+            installBtn.addEventListener('click', () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                });
+            }, { once: true });
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        });
     </script>
 </body>
 </html>
