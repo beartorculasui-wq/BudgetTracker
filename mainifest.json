@@ -1,6 +1,6 @@
 {
-  "name": "Budget Tracker",
-  "short_name": "Budget",
+  "name": "BudgetTracker",
+  "short_name": "BudgetTracker",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#C8E6C9",
