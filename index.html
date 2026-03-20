@@ -8,6 +8,9 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" href="icon-512.png" />
     <meta name="theme-color" content="#00FF00" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="BudgetTracker">
     <style>
         * {
             margin: 0;
@@ -182,10 +185,28 @@
             balanceEl.textContent = balance.toFixed(2);
         };
 
+        // Add install prompt handling
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+            installBtn.addEventListener('click', () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                });
+            }, { once: true });
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        });
 
         if ("serviceWorker" in navigator) {
         navigator.serviceWorker
-          .register("/service-worker.js")
+          .register("./service-worker.js") // Fixed path from / to ./
           .then(() => {
             console.log("Service Worker Registered");
           })
